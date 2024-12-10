@@ -24,7 +24,38 @@ type Counter = {
 })
 export class HomeComponent {
 
+    counter = signal<Counter>({ value: 0 });
+    values = signal<number[]>([]);
+    tenXCounter = computed(() => {
+        const val = this.counter().value;
+        return val * 10;
+    });
+    injector = inject(Injector);
+    effectRef: EffectRef | null = null;
 
+    constructor() {
+        this.effectRef = effect(() => {
+            console.log(this.counter().value);
+        })
+    }
 
+    increment() {
+        this.counter.update(counter => ({
+            ...counter,
+            value: counter.value + 1
+        }));
+    }
 
+    append() {
+        this.values.update(values => (
+            [
+                ...values, 
+                (values.length -1) + 1
+            ]
+        ));
+    }
+
+    cleanup() {
+        this.effectRef?.destroy();
+    }
 }
