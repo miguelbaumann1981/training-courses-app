@@ -9,6 +9,7 @@ import {catchError, from, throwError} from "rxjs";
 import {toObservable, toSignal, outputToObservable, outputFromObservable} from "@angular/core/rxjs-interop";
 import { CoursesServiceWithFetch } from '../services/courses-fetch.service';
 import { openEditCourseDialog } from '../edit-course-dialog/edit-course-dialog.component';
+import { LoadingService } from '../loading/loading.service';
 
 type Counter = {
     value: number;
@@ -38,6 +39,8 @@ export class HomeComponent {
         const courses = this.courses();
         return courses.filter(course => course.category === 'ADVANCED');
     });
+    loadingService = inject(LoadingService);
+    messageService = inject(MessagesService);
 
 
     constructor() {
@@ -58,9 +61,8 @@ export class HomeComponent {
             this.courses.set(courses.sort(sortCoursesBySeqNo));
             
         } catch (error) {
-            console.error(error);
-            alert(`Error loading courses!`);
-        }
+            this.messageService.showMessage('Error loading courses!', 'error');
+        } 
     }
 
 
@@ -70,6 +72,7 @@ export class HomeComponent {
             course.id === updaetdCourse.id ? updaetdCourse : course
         ));
         this.courses.set(newCourses);
+        this.messageService.showMessage('Updated course', 'success');
     }
 
    async onCourseDeleted(courseId: string) {
@@ -79,8 +82,7 @@ export class HomeComponent {
             const newCourses = courses.filter(course => course?.id !== courseId);
             this.courses.set(newCourses);
         } catch (error) {
-            console.error(error);
-            alert(`Error deleting course`);
+            this.messageService.showMessage('Error deleting course', 'error');
         }
     }
 
@@ -93,7 +95,8 @@ export class HomeComponent {
             ...this.courses(),
             newCourse
         ];
-        this.courses.set(newCourses)
+        this.courses.set(newCourses);
+        this.messageService.showMessage('New course created', 'success');
     }
 
 
