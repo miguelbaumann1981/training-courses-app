@@ -1,4 +1,4 @@
-import {afterNextRender, Component, computed, effect, EffectRef, inject, Injector, signal} from '@angular/core';
+import {afterNextRender, Component, computed, effect, EffectRef, ElementRef, inject, Injector, signal, viewChild} from '@angular/core';
 import {CoursesService} from "../services/courses.service";
 import {Course, sortCoursesBySeqNo} from "../models/course.model";
 import {MatTab, MatTabGroup} from "@angular/material/tabs";
@@ -20,7 +20,7 @@ type Counter = {
     imports: [
         MatTabGroup,
         MatTab,
-        CoursesCardListComponent
+        CoursesCardListComponent,
     ],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss'
@@ -41,9 +41,15 @@ export class HomeComponent {
     });
     loadingService = inject(LoadingService);
     messageService = inject(MessagesService);
+    begginersList = viewChild('begginersList', {
+        read: ElementRef
+    });
 
 
     constructor() {
+        effect(() => {
+            console.log(this.begginersList());
+        })
 
         effect(() => {
             console.log('Begginers: ', this.begginerCourses());
@@ -91,6 +97,9 @@ export class HomeComponent {
             mode: 'create',
             title: 'Create New Course',
         });
+        if (!newCourse) {
+            return;
+        }
         const newCourses = [
             ...this.courses(),
             newCourse
